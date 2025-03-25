@@ -1,137 +1,229 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from './supabase';
 
-// Caché en memoria para almacenar resultados de consultas
-const dataCache = new Map();
-
-/**
- * Hook personalizado para gestionar datos con caché
- * - Evita solicitudes repetidas al servidor
- * - Almacena los resultados en caché para acceso rápido
- * - Actualiza datos cuando es necesario
- */
-export const useDataCache = (
-  tableName, 
-  query = {}, 
-  options = { 
-    enabled: true, 
-    cacheDuration: 5 * 60 * 1000,  // 5 minutos por defecto
-    initialData: null,
-    revalidateOnFocus: true,
-    revalidateOnMount: true,
-    staleWhileRevalidate: true,
-  }
-) => {
-  const [data, setData] = useState(options.initialData);
-  const [isLoading, setIsLoading] = useState(false);
+// Hook optimizado para cargar datos con caché, reintentos y detección de conexión lenta
+export function useDataCache(tableName, query = {}, options = {}) {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [lastFetched, setLastFetched] = useState(0);
-
-  // Crear una clave única para esta consulta
-  const cacheKey = `${tableName}:${JSON.stringify(query)}`;
-
-  // Función para obtener datos del servidor
-  const fetchData = useCallback(async (skipCache = false) => {
-    // Si está deshabilitada, no hacemos nada
-    if (!options.enabled) return;
-
-    // Comprobar si tenemos datos en caché y son válidos
-    const now = Date.now();
-    const cachedItem = dataCache.get(cacheKey);
-    const isCacheValid = 
-      cachedItem && 
-      (now - cachedItem.timestamp < options.cacheDuration);
-
-    // Si tenemos caché válida y no estamos forzando una actualización
-    if (isCacheValid && !skipCache) {
-      setData(cachedItem.data);
-      setLastFetched(cachedItem.timestamp);
-      // Si staleWhileRevalidate está activado, refrescaremos en segundo plano
-      if (options.staleWhileRevalidate && (now - lastFetched > options.cacheDuration / 2)) {
-        fetchData(true); // Revalidar en segundo plano
-      }
-      return;
+  const [refreshCounter, setRefreshCounter] = useState(0);
+  
+  // Referencias para controlar timeout y cancelaciones
+  const abortController = useRef(null);
+  const timeoutRef = useRef(null);
+  
+  // Opciones con valores por defecto
+  const {
+    cacheKey = `cache_${tableName}`,
+    cacheDuration = 10 * 60 * 1000, // 10 minutos por defecto
+    autoRefresh = false,
+    refreshInterval = 60 * 1000, // 1 minuto por defecto
+    timeoutDuration = 15000, // 15 segundos timeout
+    retryCount = 2,
+    dependencies = [],
+    onSuccess = null,
+    skipCache = false
+  } = options;
+  
+  // Función memoizada para cargar datos
+  const fetchData = useCallback(async (retryAttempt = 0) => {
+    // Limpiar controlador anterior si existe
+    if (abortController.current) {
+      abortController.current.abort();
     }
-
-    // Si llegamos aquí, necesitamos obtener datos frescos
-    setIsLoading(true);
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    
+    // Crear nuevo controlador y timeout
+    abortController.current = new AbortController();
     
     try {
-      let dataQuery = supabase.from(tableName);
-
-      // Aplicar filtros, ordenación, etc. desde el objeto de consulta
-      if (query.select) dataQuery = dataQuery.select(query.select);
-      if (query.eq) {
-        for (const [key, value] of Object.entries(query.eq)) {
-          dataQuery = dataQuery.eq(key, value);
+      setLoading(true);
+      
+      // Intentar obtener datos de caché primero (si no se pide saltar caché)
+      if (!skipCache) {
+        try {
+          const cachedItem = localStorage.getItem(cacheKey);
+          if (cachedItem) {
+            const { data: cachedData, timestamp } = JSON.parse(cachedItem);
+            const now = Date.now();
+            
+            // Si caché es válido, usar datos en caché
+            if (now - timestamp < cacheDuration) {
+              setData(cachedData);
+              setLoading(false);
+              
+              // Si hay callback de éxito, llamarlo con datos en caché
+              if (onSuccess) onSuccess(cachedData);
+              
+              // Si no hay autoRefresh, terminar aquí
+              if (!autoRefresh) return;
+            }
+          }
+        } catch (cacheError) {
+          // Error leyendo caché, ignorarlo y continuar con fetch
+          console.warn('Error leyendo caché:', cacheError);
         }
       }
-      if (query.order) {
-        for (const [column, direction] of Object.entries(query.order)) {
-          dataQuery = dataQuery.order(column, { ascending: direction === 'asc' });
+      
+      // Configiurar timeout
+      timeoutRef.current = setTimeout(() => {
+        abortController.current?.abort();
+      }, timeoutDuration);
+      
+      // Detectar si tenemos una conexión lenta
+      const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+      const isSlow = connection && 
+        (connection.effectiveType === '2g' || 
+         connection.effectiveType === 'slow-2g' || 
+         connection.saveData || 
+         document.documentElement.classList.contains('slow-connection'));
+         
+      // Para conexiones lentas, usar límites menores en consultas
+      const modifiedQuery = { ...query };
+      if (isSlow && modifiedQuery.limit && modifiedQuery.limit > 20) {
+        modifiedQuery.limit = 20;
+      }
+      
+      // Realizar consulta a Supabase
+      let supabaseQuery = supabase.from(tableName);
+      
+      // Aplicar filtros, ordenamientos, etc.
+      if (modifiedQuery.select) supabaseQuery = supabaseQuery.select(modifiedQuery.select);
+      if (modifiedQuery.filter) {
+        const { column, value, operator = 'eq' } = modifiedQuery.filter;
+        supabaseQuery = supabaseQuery[operator](column, value);
+      }
+      if (modifiedQuery.filters) {
+        modifiedQuery.filters.forEach(filter => {
+          const { column, value, operator = 'eq' } = filter;
+          supabaseQuery = supabaseQuery[operator](column, value);
+        });
+      }
+      if (modifiedQuery.order) {
+        const { column, ascending = false } = modifiedQuery.order;
+        supabaseQuery = supabaseQuery.order(column, { ascending });
+      }
+      if (modifiedQuery.limit) supabaseQuery = supabaseQuery.limit(modifiedQuery.limit);
+      
+      // Añadir señal de cancelación
+      supabaseQuery = supabaseQuery.abortSignal(abortController.current.signal);
+      
+      // Ejecutar consulta
+      const { data: freshData, error: supabaseError } = await supabaseQuery;
+      
+      // Limpiar timeout
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
+      
+      if (supabaseError) throw supabaseError;
+      
+      // Guardar datos en caché y estado
+      setData(freshData);
+      
+      // Guardar en localStorage si no se está saltando caché
+      if (!skipCache) {
+        try {
+          localStorage.setItem(cacheKey, JSON.stringify({
+            data: freshData,
+            timestamp: Date.now()
+          }));
+        } catch (saveError) {
+          console.warn('Error guardando en caché:', saveError);
         }
       }
-      if (query.limit) dataQuery = dataQuery.limit(query.limit);
-      if (query.range) dataQuery = dataQuery.range(query.range[0], query.range[1]);
-
-      const { data: result, error: fetchError } = await dataQuery;
       
-      if (fetchError) throw fetchError;
+      // Llamar callback de éxito
+      if (onSuccess) onSuccess(freshData);
       
-      // Actualizar el estado y la caché
-      setData(result);
-      setLastFetched(now);
-      
-      // Guardar en caché
-      dataCache.set(cacheKey, {
-        data: result,
-        timestamp: now
-      });
-      
+      setError(null);
     } catch (err) {
-      console.error('Error fetching data from Supabase:', err);
-      setError(err);
+      // No establecer error para operaciones abortadas
+      if (err.name === 'AbortError') {
+        console.info('Operación cancelada:', tableName);
+        return;
+      }
+      
+      // Para timeout, mostrar mensaje amigable
+      if (err.message?.includes('timeout') || err.name === 'TimeoutError') {
+        setError(new Error('La conexión es lenta. Intentando de nuevo...'));
+      } else {
+        setError(err);
+      }
+      
+      // Reintentar si hay intentos disponibles
+      if (retryAttempt < retryCount) {
+        console.info(`Reintentando consulta (${retryAttempt + 1}/${retryCount})...`);
+        setTimeout(() => {
+          fetchData(retryAttempt + 1);
+        }, 2000 * (retryAttempt + 1)); // Incrementar tiempo entre reintentos
+      }
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
-  }, [tableName, cacheKey, options.enabled, options.cacheDuration, options.staleWhileRevalidate, lastFetched, query]);
-
+  }, [tableName, JSON.stringify(query), cacheKey, cacheDuration, skipCache, retryCount, timeoutDuration, refreshCounter, ...dependencies]);
+  
   // Efecto para cargar datos iniciales
   useEffect(() => {
-    if (options.revalidateOnMount) {
-      fetchData();
-    }
-  }, [fetchData, options.revalidateOnMount]);
-
-  // Efecto para revalidar al recuperar el foco
-  useEffect(() => {
-    if (!options.revalidateOnFocus) return;
-
-    const handleFocus = () => {
-      // Solo revalidamos si han pasado al menos 10 segundos desde la última carga
-      if (Date.now() - lastFetched > 10000) {
+    fetchData();
+    
+    // Configurar actualización automática
+    let intervalId;
+    if (autoRefresh) {
+      intervalId = setInterval(() => {
         fetchData();
-      }
+      }, refreshInterval);
+    }
+    
+    // Limpieza al desmontar
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+      if (abortController.current) abortController.current.abort();
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
-
-    window.addEventListener('focus', handleFocus);
-    return () => window.removeEventListener('focus', handleFocus);
-  }, [fetchData, lastFetched, options.revalidateOnFocus]);
-
-  // Función para invalidar manualmente el caché
-  const invalidateCache = () => {
-    dataCache.delete(cacheKey);
-    fetchData(true);
+  }, [fetchData, autoRefresh, refreshInterval]);
+  
+  // Función para forzar recarga
+  const refresh = useCallback(() => {
+    setRefreshCounter(prev => prev + 1);
+  }, []);
+  
+  // Función para actualizar caché directamente (útil después de mutaciones)
+  const updateCache = useCallback((newData) => {
+    setData(newData);
+    
+    if (!skipCache) {
+      try {
+        localStorage.setItem(cacheKey, JSON.stringify({
+          data: newData,
+          timestamp: Date.now()
+        }));
+      } catch (saveError) {
+        console.warn('Error guardando en caché:', saveError);
+      }
+    }
+  }, [cacheKey, skipCache]);
+  
+  // Función para limpiar caché
+  const clearCache = useCallback(() => {
+    try {
+      localStorage.removeItem(cacheKey);
+    } catch (e) {
+      console.warn('Error al limpiar caché:', e);
+    }
+  }, [cacheKey]);
+  
+  return { 
+    data, 
+    loading, 
+    error, 
+    refresh, 
+    updateCache,
+    clearCache
   };
-
-  return {
-    data,
-    isLoading,
-    error,
-    refetch: () => fetchData(true),  // Forzar recarga omitiendo caché
-    invalidateCache,
-    lastFetched
-  };
-};
+}
 
 export default useDataCache; 

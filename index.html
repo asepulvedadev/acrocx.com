@@ -55,22 +55,42 @@
       }
     </script>
     
-    <!-- Preload de recursos críticos -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <!-- DNS Prefetch para dominios externos -->
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+    <link rel="dns-prefetch" href="//maps.googleapis.com">
+    
+    <!-- Preconexión asíncrona con dominios externos -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="preload" href="/fonts/main-font.woff2" as="font" type="font/woff2" crossorigin />
     
-    <!-- Prefetch para navegación común -->
+    <!-- Precarga de recursos críticos -->
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    
+    <!-- Fallback para navegadores sin soporte de onload -->
+    <noscript>
+      <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    </noscript>
+    
+    <!-- Prefetch selectivo de rutas críticas (reducido a las más visitadas) -->
     <link rel="prefetch" href="/ventas" as="document" />
-    <link rel="prefetch" href="/rentas" as="document" />
     
-    <!-- Script de detección de conexión lenta -->
+    <!-- Detección de conexión mejorada con timeout para no bloquear -->
     <script type="text/javascript">
-      // Detectar conexiones lentas y ajustar la estrategia de carga
-      const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-      if (connection && (connection.effectiveType === '2g' || connection.effectiveType === 'slow-2g')) {
-        document.documentElement.classList.add('slow-connection');
-      }
+      // Detección de conexiones lentas con timeout para evitar bloqueo
+      (function() {
+        var connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+        var timeout = setTimeout(function() {
+          document.documentElement.classList.add('default-connection');
+        }, 50);
+        
+        if (connection) {
+          clearTimeout(timeout);
+          if (connection.effectiveType === '2g' || connection.effectiveType === 'slow-2g' || connection.saveData) {
+            document.documentElement.classList.add('slow-connection');
+          }
+        }
+      })();
     </script>
     
     <title>Acrocx - Tu Socio Inmobiliario | Propiedades en Venta y Renta</title>
@@ -79,22 +99,50 @@
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
     
-    <!-- Cargar scripts no críticos después -->
-    <script type="module">
-      // Cargar scripts no críticos después de que la página esté interactiva
-      window.addEventListener('load', () => {
-        // Priorizar la indexación y el SEO
-        setTimeout(() => {
-          const linkElement = document.createElement('link');
-          linkElement.rel = 'stylesheet';
-          linkElement.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap';
-          document.head.appendChild(linkElement);
-          
-          // Generar sitemap dinámico
-          const sitemapScript = document.createElement('script');
-          sitemapScript.src = '/js/generate-sitemap.js';
-          document.body.appendChild(sitemapScript);
-        }, 3000);
+    <!-- Carga diferida y optimizada de recursos externos -->
+    <script>
+      // Estrategia de carga diferida para recursos no críticos
+      document.addEventListener('DOMContentLoaded', function() {
+        // Observador de intersección para cargar fuentes cuando estén en viewport
+        var fontObserver = new IntersectionObserver(function(entries) {
+          if (entries[0].isIntersecting) {
+            // Cargar fuentes solo cuando se necesiten
+            var fontLink = document.createElement('link');
+            fontLink.rel = 'stylesheet';
+            fontLink.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap';
+            fontLink.media = 'print';
+            fontLink.onload = function() {
+              fontLink.media = 'all';
+            };
+            document.head.appendChild(fontLink);
+            
+            // Desconectar el observador una vez cargado
+            fontObserver.disconnect();
+          }
+        }, {
+          rootMargin: '0px 0px 200px 0px',
+          threshold: 0.01
+        });
+        
+        // Observar el cuerpo del documento
+        fontObserver.observe(document.body);
+        
+        // Detección de idle time para cargar scripts no críticos
+        if ('requestIdleCallback' in window) {
+          requestIdleCallback(function() {
+            if (!navigator.onLine) return;
+            
+            // Cargar sitemap generador solo en producción
+            if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+              setTimeout(function() {
+                var sitemapScript = document.createElement('script');
+                sitemapScript.src = '/js/generate-sitemap.js';
+                sitemapScript.async = true;
+                document.body.appendChild(sitemapScript);
+              }, 5000);
+            }
+          }, { timeout: 5000 });
+        }
       });
     </script>
   </body>

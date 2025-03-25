@@ -1,111 +1,126 @@
-import React from 'react';
+import React, { memo, useMemo } from 'react';
+import PropTypes from 'prop-types';
 import SEO from './SEO';
 
 /**
  * Componente SEO específico para páginas de propiedades inmobiliarias
  * Optimizado para motores de búsqueda inmobiliarios
  */
-const PropertySEO = ({
-  property,
-  canonicalUrl,
-  noIndex = false
-}) => {
+const PropertySEO = memo(function PropertySEO({ property }) {
+  // Memoizar datos estructurados para evitar recálculos
+  const structuredData = useMemo(() => {
+    if (!property) return null;
+    
+    // Formatear precio adecuadamente para los datos estructurados
+    const formatPrice = () => {
+      if (!property.price) return null;
+      return {
+        "@type": "MonetaryAmount",
+        "currency": "MXN",
+        "value": property.price
+      };
+    };
+
+    // Formatear imágenes de manera optimizada
+    const formatImages = () => {
+      if (!property.images || !property.images.length) {
+        return [`https://acrocxweb.vercel.app/img/property-placeholder.jpg`];
+      }
+      
+      // Limitar a 5 imágenes para rendimiento
+      return property.images.slice(0, 5).map(img => img.url);
+    };
+
+    // Construir datos estructurados optimizados para RealEstateListing
+    return {
+      "@context": "https://schema.org",
+      "@type": "RealEstateListing",
+      "name": property.title,
+      "description": property.description,
+      "url": `https://acrocxweb.vercel.app/propiedad/${property.id}`,
+      "datePosted": property.created_at,
+      "image": formatImages(),
+      "offers": {
+        "@type": "Offer",
+        "price": property.price,
+        "priceCurrency": "MXN",
+        "availability": property.status === "available" ? "https://schema.org/InStock" : "https://schema.org/SoldOut"
+      },
+      "geo": property.latitude && property.longitude ? {
+        "@type": "GeoCoordinates",
+        "latitude": property.latitude,
+        "longitude": property.longitude
+      } : undefined,
+      "address": {
+        "@type": "PostalAddress",
+        "addressCountry": "MX",
+        "addressLocality": property.city || "México",
+        "addressRegion": property.state || "Ciudad de México",
+        "postalCode": property.postal_code || ""
+      }
+    };
+  }, [property]);
+  
+  // Si no hay propiedad, no renderizar nada
   if (!property) return null;
   
-  // Extraer datos de la propiedad
-  const {
-    id,
-    title,
-    description,
-    price,
-    property_type,
-    bedrooms,
-    bathrooms,
-    area,
-    location,
-    features = [],
-    images = [],
-    status = 'available',
-    currency = 'MXN'
-  } = property;
+  // Determinar la URL de imagen principal para OpenGraph - con fallback
+  const mainImage = property.images && property.images.length > 0 
+    ? property.images[0].url 
+    : '/img/property-placeholder.jpg';
   
-  // Construir URL de la propiedad
-  const propertyUrl = canonicalUrl || `/propiedad/${id}`;
-  
-  // Imagen principal para compartir
-  const mainImage = images && images.length > 0 
-    ? images[0] 
-    : 'https://acrocxweb.vercel.app/img/property-placeholder.jpg';
-  
-  // Generar título optimizado para SEO
-  const seoTitle = `${title} | ${bedrooms} Recámaras ${bathrooms} Baños | ${area}m² | Acrocx Inmobiliaria`;
-  
-  // Generar descripción optimizada para SEO
-  const seoDescription = `${property_type} en ${location.city}: ${bedrooms} recámaras, ${bathrooms} baños, ${area}m². ${description.substring(0, 100)}... Ver más detalles y fotos.`;
-  
-  // Generar palabras clave específicas para la propiedad
-  const seoKeywords = `${property_type}, ${location.city}, ${location.state}, ${bedrooms} recámaras, ${bathrooms} baños, ${features.join(', ')}, inmueble, propiedad, bienes raíces`;
-  
-  // Datos estructurados para esta propiedad específica (Schema.org)
-  const structuredData = {
-    '@context': 'https://schema.org',
-    '@type': 'RealEstateListing',
-    'name': title,
-    'description': description,
-    'url': `https://acrocxweb.vercel.app${propertyUrl}`,
-    'datePosted': property.created_at,
-    'image': images.map(img => img),
-    'offers': {
-      '@type': 'Offer',
-      'price': price,
-      'priceCurrency': currency,
-      'availability': status === 'available' ? 'https://schema.org/InStock' : 'https://schema.org/SoldOut'
-    },
-    'accommodationCategory': property_type,
-    'numberOfRooms': bedrooms,
-    'floorSize': {
-      '@type': 'QuantitativeValue',
-      'value': area,
-      'unitCode': 'MTK' // metros cuadrados
-    },
-    'address': {
-      '@type': 'PostalAddress',
-      'addressLocality': location.city,
-      'addressRegion': location.state,
-      'addressCountry': 'MX', // México
-      'postalCode': location.zip_code || '',
-      'streetAddress': location.address || ''
-    },
-    'geo': {
-      '@type': 'GeoCoordinates',
-      'latitude': location.latitude || '',
-      'longitude': location.longitude || ''
-    },
-    'amenityFeature': features.map(feature => ({
-      '@type': 'LocationFeatureSpecification',
-      'name': feature
-    })),
-    'broker': {
-      '@type': 'RealEstateAgent',
-      'name': 'Acrocx Inmobiliaria',
-      'url': 'https://acrocxweb.vercel.app',
-      'logo': 'https://acrocxweb.vercel.app/img/logo.png',
-      'telephone': '+525512345678'
+  // Generar meta descripción optimizada para SEO
+  const getMetaDescription = () => {
+    let desc = `${property.property_type || 'Propiedad'} `;
+    
+    if (property.status === 'for_sale') {
+      desc += 'en venta ';
+    } else if (property.status === 'for_rent') {
+      desc += 'en renta ';
     }
+    
+    if (property.bedrooms) {
+      desc += `con ${property.bedrooms} habitaciones, `;
+    }
+    
+    if (property.bathrooms) {
+      desc += `${property.bathrooms} baños, `;
+    }
+    
+    if (property.area) {
+      desc += `${property.area} m², `;
+    }
+    
+    if (property.city && property.state) {
+      desc += `ubicada en ${property.city}, ${property.state}. `;
+    }
+    
+    // Añadir precio si disponible
+    if (property.price) {
+      desc += `Precio: $${property.price.toLocaleString('es-MX')} MXN. `;
+    }
+    
+    return desc.substring(0, 157) + '...';
   };
+  
+  // Título optimizado para SEO
+  const title = `${property.title} | ${property.city || ''} | Acrocx`;
   
   return (
     <SEO
-      title={seoTitle}
-      description={seoDescription}
-      keywords={seoKeywords}
-      canonicalUrl={propertyUrl}
+      title={title}
+      description={getMetaDescription()}
+      ogTitle={property.title}
+      ogDescription={property.description?.substring(0, 160) || getMetaDescription()}
       ogType="product"
       ogImage={mainImage}
-      noIndex={noIndex || status !== 'available'} // No indexar propiedades no disponibles
       structuredData={structuredData}
     />
   );
+});
+
+PropertySEO.propTypes = {
+  property: PropTypes.object.isRequired
 };
 
 export default PropertySEO; 

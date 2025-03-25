@@ -22,15 +22,63 @@ const SystemVideos = lazy(() => import("./pages/admin/SystemVideos"));
 const ContactInfo = lazy(() => import("./pages/admin/ContactInfo"));
 const ContactMessages = lazy(() => import("./pages/admin/ContactMessages"));
 
-// Componente para mostrar durante la carga
-const LoadingFallback = () => (
-  <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-white to-gray-100">
-    <div className="text-center">
-      <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-      <p className="text-lg text-gray-700">Cargando...</p>
-    </div>
-  </div>
-);
+// Estilos críticos - solo los necesarios para la carga inicial
+import './styles/critical.css';
+
+// Precarga de datos iniciales básicos - evitar múltiples solicitudes
+const preloadBasicData = async () => {
+  try {
+    // Verificar si hay caché válida
+    const cacheKey = 'preload_basic_data';
+    const cachedData = localStorage.getItem(cacheKey);
+    const cacheAge = localStorage.getItem(cacheKey + '-timestamp');
+    const now = Date.now();
+    
+    // Usar caché si existe y tiene menos de 24 horas
+    if (cachedData && cacheAge && (now - parseInt(cacheAge, 10) < 86400000)) {
+      // Usar datos en caché
+      return JSON.parse(cachedData);
+    }
+    
+    // Detección de conexión lenta
+    const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+    const isSlow = connection && 
+      (connection.effectiveType === '2g' || 
+       connection.effectiveType === 'slow-2g' ||
+       connection.saveData || 
+       document.documentElement.classList.contains('slow-connection'));
+       
+    // En conexiones lentas, cargar mínimo indispensable
+    if (isSlow) {
+      return null;
+    }
+    
+    // Establecer un timeout para cancelar la solicitud si tarda demasiado
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 2500);
+    
+    // Cargar solo datos esenciales - ajustar según la app
+    const { data, error } = await Promise.race([
+      supabase.from('settings').select('site_name,logo_url').single().abortSignal(controller.signal),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 2500))
+    ]);
+    
+    clearTimeout(timeoutId);
+    
+    if (error) throw error;
+    
+    // Guardar en caché
+    if (data) {
+      localStorage.setItem(cacheKey, JSON.stringify(data));
+      localStorage.setItem(cacheKey + '-timestamp', now.toString());
+    }
+    
+    return data;
+  } catch (error) {
+    console.warn('Error en precarga inicial:', error);
+    return null;
+  }
+};
 
 // Función para cargar el favicon desde la base de datos
 const loadFavicon = async () => {
@@ -123,25 +171,48 @@ const AppRoutes = () => {
   );
 };
 
-// Optimización: Renderizar primero el estado de carga y luego hidratar
-let appMounted = false;
-const renderApp = () => {
-  if (!appMounted) {
-    ReactDOM.createRoot(document.getElementById("root")).render(
-      <React.StrictMode>
-        <HelmetProvider>
-          <AppRoutes />
-        </HelmetProvider>
-      </React.StrictMode>
-    );
-    appMounted = true;
+// Renderizado optimizado
+async function renderApp() {
+  // Intentar precargar datos básicos
+  const preloadedData = await preloadBasicData();
+  
+  // Cargar solo los estilos no críticos después del renderizado inicial
+  const loadNonCriticalStyles = () => {
+    import('./styles/index.css');
+  };
+  
+  // Fallback durante la carga de componentes
+  const LoadingFallback = () => (
+    <div className="app-loading">
+      <div className="loading-spinner"></div>
+    </div>
+  );
+  
+  // Renderizar la aplicación
+  ReactDOM.createRoot(document.getElementById('root')).render(
+    <React.StrictMode>
+      <HelmetProvider>
+        <Suspense fallback={<LoadingFallback />}>
+          <App preloadedData={preloadedData} />
+        </Suspense>
+      </HelmetProvider>
+    </React.StrictMode>
+  );
+  
+  // Cargar estilos no críticos después de que la app esté renderizada
+  if ('requestIdleCallback' in window) {
+    requestIdleCallback(loadNonCriticalStyles, { timeout: 2000 });
+  } else {
+    setTimeout(loadNonCriticalStyles, 1000);
   }
-};
-
-// Si documento está listo, renderizar inmediatamente
-if (document.readyState === 'complete' || document.readyState === 'interactive') {
-  setTimeout(renderApp, 0);
-} else {
-  // De lo contrario, esperar a que esté listo
-  document.addEventListener('DOMContentLoaded', renderApp);
+  
+  // Reportar métricas web vitales si está en producción
+  if (import.meta.env.PROD) {
+    import('./utils/reportWebVitals').then(({ reportWebVitals }) => {
+      reportWebVitals();
+    });
+  }
 }
+
+// Iniciar renderizado
+renderApp();

@@ -1,25 +1,33 @@
-import React from 'react';
-import { Helmet } from 'react-helmet-async';
+import React, { memo } from 'react';
+import { Helmet, HelmetProvider } from 'react-helmet-async';
+import PropTypes from 'prop-types';
 
 /**
  * Componente SEO para optimizar el posicionamiento en buscadores
  * Permite configurar metatags, títulos y descripciones en cada página
  */
-const SEO = ({
+const SEO = memo(function SEO({
   title = 'Acrocx - Tu Socio Inmobiliario',
   description = 'Encuentra las mejores propiedades en venta y renta con Acrocx, expertos en bienes raíces.',
   canonicalUrl,
+  ogUrl,
   ogType = 'website',
-  ogImage = 'https://acrocxweb.vercel.app/img/acrocx-social-card.jpg',
+  ogTitle,
+  ogDescription,
+  ogImage = '/img/acrocx-social-card.svg',
   keywords = 'inmobiliaria, propiedades, bienes raíces, casas en venta, apartamentos en renta',
-  noIndex = false,
+  noindex = false,
   structuredData = null,
   children
-}) => {
-  // Construir la URL canónica
+}) {
+  // Determinar URL canónica
   const siteUrl = 'https://acrocxweb.vercel.app';
-  const pageUrl = canonicalUrl || (typeof window !== 'undefined' ? window.location.pathname : '');
-  const fullUrl = `${siteUrl}${pageUrl}`;
+  const canonical = canonicalUrl || `${siteUrl}${window.location.pathname}`;
+  
+  // Valores predeterminados de OpenGraph
+  const metaOgTitle = ogTitle || title;
+  const metaOgDescription = ogDescription || description;
+  const metaOgUrl = ogUrl || canonical;
   
   // Palabras clave específicas del sector inmobiliario
   const defaultKeywords = 'inmobiliaria, propiedades, bienes raíces, casas en venta, apartamentos en renta, asesoría inmobiliaria, propiedades de lujo';
@@ -52,47 +60,73 @@ const SEO = ({
   // Usar datos estructurados personalizados o los predeterminados
   const jsonLd = structuredData || defaultStructuredData;
   
+  // Configuración básica para el head
   return (
-    <Helmet>
-      {/* Título y metadatos básicos */}
-      <title>{title}</title>
-      <meta name="description" content={description} />
-      <meta name="keywords" content={allKeywords} />
-      
-      {/* Control de indexación */}
-      {noIndex ? (
-        <meta name="robots" content="noindex, nofollow" />
-      ) : (
-        <meta name="robots" content="index, follow" />
-      )}
-      
-      {/* URL canónica */}
-      <link rel="canonical" href={fullUrl} />
-      
-      {/* Open Graph para redes sociales */}
-      <meta property="og:title" content={title} />
-      <meta property="og:description" content={description} />
-      <meta property="og:type" content={ogType} />
-      <meta property="og:url" content={fullUrl} />
-      <meta property="og:image" content={ogImage} />
-      <meta property="og:site_name" content="Acrocx Inmobiliaria" />
-      <meta property="og:locale" content="es_MX" />
-      
-      {/* Twitter Card */}
-      <meta name="twitter:card" content="summary_large_image" />
-      <meta name="twitter:title" content={title} />
-      <meta name="twitter:description" content={description} />
-      <meta name="twitter:image" content={ogImage} />
-      
-      {/* Schema.org / JSON-LD */}
-      <script type="application/ld+json">
-        {JSON.stringify(jsonLd)}
-      </script>
-      
-      {/* Contenido adicional */}
+    <HelmetProvider>
+      <Helmet prioritizeSeoTags>
+        {/* Etiquetas básicas */}
+        <title>{title}</title>
+        <meta name="description" content={description} />
+        <meta name="keywords" content={allKeywords} />
+        <link rel="canonical" href={canonical} />
+        
+        {/* Etiquetas para indexación */}
+        {noindex && <meta name="robots" content="noindex, nofollow" />}
+        {!noindex && <meta name="robots" content="index, follow" />}
+        
+        {/* OpenGraph básico */}
+        <meta property="og:type" content={ogType} />
+        <meta property="og:title" content={metaOgTitle} />
+        <meta property="og:description" content={metaOgDescription} />
+        <meta property="og:url" content={metaOgUrl} />
+        
+        {/* OpenGraph imagen - con lazy load para no bloquear renderizado */}
+        <meta property="og:image" content={`${siteUrl}${ogImage}`} />
+        <meta property="og:image:alt" content={title} />
+        <meta property="og:site_name" content="Acrocx" />
+        
+        {/* Twitter Card */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={metaOgTitle} />
+        <meta name="twitter:description" content={metaOgDescription} />
+        <meta name="twitter:image" content={`${siteUrl}${ogImage}`} />
+        
+        {/* Metadatos de performance */}
+        <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
+        
+        {/* Datos estructurados JSON-LD si existen */}
+        {structuredData && (
+          <script type="application/ld+json">
+            {JSON.stringify(jsonLd)}
+          </script>
+        )}
+        
+        {/* Recursos de imágenes optimizados */}
+        <link 
+          rel="preload" 
+          as="image" 
+          href={`${siteUrl}${ogImage}`} 
+          media="(max-width: 0)" 
+          onLoad="this.media='all'"
+        />
+      </Helmet>
       {children}
-    </Helmet>
+    </HelmetProvider>
   );
+});
+
+SEO.propTypes = {
+  title: PropTypes.string.isRequired,
+  description: PropTypes.string.isRequired,
+  canonicalUrl: PropTypes.string,
+  ogUrl: PropTypes.string,
+  ogType: PropTypes.string,
+  ogTitle: PropTypes.string,
+  ogDescription: PropTypes.string,
+  ogImage: PropTypes.string,
+  structuredData: PropTypes.object,
+  noindex: PropTypes.bool,
+  children: PropTypes.node
 };
 
 export default SEO; 
