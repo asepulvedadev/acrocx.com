@@ -22,9 +22,6 @@ const SystemVideos = lazy(() => import("./pages/admin/SystemVideos"));
 const ContactInfo = lazy(() => import("./pages/admin/ContactInfo"));
 const ContactMessages = lazy(() => import("./pages/admin/ContactMessages"));
 
-// Estilos críticos - solo los necesarios para la carga inicial
-import './styles/critical.css';
-
 // Precarga de datos iniciales básicos - evitar múltiples solicitudes
 const preloadBasicData = async () => {
   try {
@@ -124,6 +121,13 @@ const registerServiceWorker = () => {
 // Registrar el Service Worker
 registerServiceWorker();
 
+// Fallback durante la carga de componentes
+const LoadingFallback = () => (
+  <div className="app-loading">
+    <div className="loading-spinner"></div>
+  </div>
+);
+
 const AppRoutes = () => {
   // También cargar el favicon cuando se monta el componente
   // para asegurar que se carga incluso después de cambios de ruta
@@ -171,48 +175,35 @@ const AppRoutes = () => {
   );
 };
 
-// Renderizado optimizado
-async function renderApp() {
-  // Intentar precargar datos básicos
-  const preloadedData = await preloadBasicData();
-  
-  // Cargar solo los estilos no críticos después del renderizado inicial
-  const loadNonCriticalStyles = () => {
-    import('./styles/index.css');
-  };
-  
-  // Fallback durante la carga de componentes
-  const LoadingFallback = () => (
-    <div className="app-loading">
-      <div className="loading-spinner"></div>
-    </div>
-  );
-  
-  // Renderizar la aplicación
-  ReactDOM.createRoot(document.getElementById('root')).render(
-    <React.StrictMode>
-      <HelmetProvider>
-        <Suspense fallback={<LoadingFallback />}>
-          <App preloadedData={preloadedData} />
-        </Suspense>
-      </HelmetProvider>
-    </React.StrictMode>
-  );
-  
-  // Cargar estilos no críticos después de que la app esté renderizada
-  if ('requestIdleCallback' in window) {
-    requestIdleCallback(loadNonCriticalStyles, { timeout: 2000 });
-  } else {
-    setTimeout(loadNonCriticalStyles, 1000);
-  }
-  
-  // Reportar métricas web vitales si está en producción
-  if (import.meta.env.PROD) {
-    import('./utils/reportWebVitals').then(({ reportWebVitals }) => {
-      reportWebVitals();
-    });
-  }
+// Renderizar la aplicación
+ReactDOM.createRoot(document.getElementById('root')).render(
+  <React.StrictMode>
+    <HelmetProvider>
+      <Suspense fallback={<LoadingFallback />}>
+        <AppRoutes />
+      </Suspense>
+    </HelmetProvider>
+  </React.StrictMode>
+);
+
+// Ejecutar tareas no críticas después de que la app esté renderizada
+if ('requestIdleCallback' in window) {
+  requestIdleCallback(() => {
+    console.log('Aplicación cargada completamente');
+    // Iniciar la precarga de datos
+    preloadBasicData();
+  }, { timeout: 2000 });
+} else {
+  setTimeout(() => {
+    console.log('Aplicación cargada completamente');
+    // Iniciar la precarga de datos
+    preloadBasicData();
+  }, 1000);
 }
 
-// Iniciar renderizado
-renderApp();
+// Reportar métricas web vitales si está en producción
+if (import.meta.env.PROD) {
+  import('./utils/reportWebVitals').then(({ reportWebVitals }) => {
+    reportWebVitals();
+  });
+}
