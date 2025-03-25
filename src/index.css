@@ -1,0 +1,197 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 212 33% 91%;  /* #dde5f0 */
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 221.2 83.2% 53.3%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 221.2 83.2% 53.3%;
+    --radius: 1.5rem;
+  }
+
+  .dark {
+    --background: 250 14% 5%;  /* #0d0b0e */
+    --foreground: 210 40% 98%;
+    --card: 212 33% 91%;  /* #dde5f0 */
+    --card-foreground: 222.2 84% 4.9%;  /* Mantiene texto oscuro */
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 217.2 91.2% 59.8%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 224.3 76.3% 48%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+.property-card {
+  @apply relative overflow-hidden rounded-[var(--radius)] border bg-[#dde5f0] text-card-foreground transition-all duration-300 hover:scale-[1.02] hover:shadow-xl dark:shadow-primary/5;
+}
+
+.property-card-image {
+  @apply aspect-[4/3] overflow-hidden rounded-t-[var(--radius)];
+}
+
+.property-card-content {
+  @apply p-6;
+}
+
+.property-features {
+  @apply mt-4 flex items-center gap-6 text-sm text-muted-foreground;
+}
+
+.feature-item {
+  @apply flex items-center gap-2;
+}
+
+.hero-slider {
+  @apply relative mx-auto mt-16 h-[70vh] w-[90%] overflow-hidden rounded-[var(--radius)] shadow-2xl md:h-[80vh];
+}
+
+/* Estilos para el VideoSlider */
+.hero-slider video {
+  @apply h-full w-full object-cover;
+}
+
+@media (max-width: 768px) {
+  .hero-slider video {
+    @apply object-cover;
+    object-position: center;
+  }
+}
+
+.search-float {
+  @apply absolute left-1/2 top-1/2 z-10 w-11/12 -translate-x-1/2 -translate-y-1/2 rounded-[var(--radius)] bg-background/95 p-8 shadow-2xl backdrop-blur-sm dark:bg-background/80 dark:shadow-primary/5 md:w-3/4 lg:w-2/3;
+}
+
+.search-input {
+  @apply rounded-[var(--radius)] border bg-background/50 px-6 py-3 backdrop-blur-sm transition-all duration-300 focus:bg-background focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-background/30 dark:focus:bg-background/50;
+}
+
+.nav-link {
+  @apply flex items-center gap-2 text-sm font-medium transition-all duration-300 hover:text-primary;
+}
+
+.section-title {
+  @apply mb-12 text-center text-4xl font-bold md:text-5xl;
+}
+
+.container-custom {
+  @apply mx-auto max-w-7xl px-6 sm:px-8 lg:px-10;
+}
+
+.service-card {
+  @apply rounded-[var(--radius)] bg-[#dde5f0] p-8 text-center shadow-lg transition-all duration-300 hover:scale-[1.02] hover:shadow-xl dark:shadow-primary/5;
+}
+
+.service-icon {
+  @apply mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-primary/10 text-primary transition-all duration-300 group-hover:bg-primary group-hover:text-primary-foreground;
+}
+
+.contact-input {
+  @apply w-full rounded-[var(--radius)] border bg-background px-6 py-3 transition-all duration-300 focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-primary/20;
+}
+
+/* Footer styles con color fijo */
+.footer-link {
+  @apply text-white/90 transition-colors hover:text-white;
+}
+
+.social-link {
+  @apply flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white transition-all duration-300 hover:bg-white hover:text-[#6a808b];
+}
+
+/* Footer background y textos fijos */
+footer {
+  @apply bg-[#6a808b] !important;
+}
+
+footer p, 
+footer h3, 
+footer h4, 
+footer a, 
+footer span {
+  @apply text-white/90 !important;
+}
+
+footer h3,
+footer h4 {
+  @apply text-white !important;
+}
+
+footer .text-muted-foreground {
+  @apply text-white/70 !important;
+}
+
+/* Mantener texto oscuro en las cards */
+.property-card h3,
+.property-card p,
+.service-card h3,
+.service-card p {
+  @apply text-gray-800 !important;
+}
+
+/* Mantener iconos oscuros en las cards */
+.property-card .feature-item svg,
+.service-card .service-icon svg {
+  @apply text-gray-800 !important;
+}
+
+/* Estilos para el botón flotante de WhatsApp */
+@keyframes pulse-whatsapp {
+  0% {
+    box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.7);
+    transform: scale(1);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(37, 211, 102, 0);
+    transform: scale(1.05);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(37, 211, 102, 0);
+    transform: scale(1);
+  }
+}
+
+.fixed[href*="wa.me"] {
+  animation: pulse-whatsapp 2s infinite;
+}
+
+.fixed[href*="wa.me"]:hover {
+  animation: none;
+  transform: scale(1.1);
+}
