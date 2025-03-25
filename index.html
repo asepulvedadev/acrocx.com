@@ -5,10 +5,44 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" id="favicon" />
     <meta name="generator" content="Hostinger Horizons" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Acrocx - Tu Socio Inmobiliario. Encuentra las mejores propiedades para compra y renta." />
+    <meta name="theme-color" content="#ffffff" />
+    
+    <!-- Precargar recursos críticos -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    
+    <!-- Prefetch para navegación común -->
+    <link rel="prefetch" href="/ventas" as="document" />
+    <link rel="prefetch" href="/rentas" as="document" />
+    
+    <!-- Agregar script de precarga para detectar conexión lenta -->
+    <script type="text/javascript">
+      // Detectar conexiones lentas y ajustar la estrategia de carga
+      const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+      if (connection && (connection.effectiveType === '2g' || connection.effectiveType === 'slow-2g')) {
+        document.documentElement.classList.add('slow-connection');
+      }
+    </script>
+    
     <title>Acrocx - Tu Socio Inmobiliario</title>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+    
+    <!-- Cargar scripts no críticos después -->
+    <script type="module">
+      // Cargar scripts no críticos después de que la página esté interactiva
+      window.addEventListener('load', () => {
+        // Aquí cargaríamos scripts no críticos como analytics
+        setTimeout(() => {
+          // Ejemplo: cargar analytics después de 3 segundos
+          // const analyticsScript = document.createElement('script');
+          // analyticsScript.src = '/analytics.js';
+          // document.body.appendChild(analyticsScript);
+        }, 3000);
+      });
+    </script>
   </body>
 </html>

@@ -1,6 +1,8 @@
 import path from 'node:path';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
+import { splitVendorChunkPlugin } from 'vite';
+import { visualizer } from 'rollup-plugin-visualizer';
 
 const addTransformIndexHtml = {
 	name: 'add-transform-index-html',
@@ -82,7 +84,16 @@ const addTransformIndexHtml = {
 };
 
 export default defineConfig({
-	plugins: [react(), addTransformIndexHtml],
+	plugins: [
+		react(),
+		addTransformIndexHtml,
+		splitVendorChunkPlugin(),
+		visualizer({
+			filename: 'dist/stats.html',
+			gzipSize: true,
+			brotliSize: true,
+		}),
+	],
 	server: {
 		cors: true,
 		headers: {
@@ -97,9 +108,42 @@ export default defineConfig({
 		},
 	},
 	build: {
+		cssCodeSplit: true,
+		reportCompressedSize: false,
+		chunkSizeWarningLimit: 1000,
+		minify: 'terser',
+		terserOptions: {
+			compress: {
+				drop_console: true,
+				drop_debugger: true,
+			},
+		},
 		rollupOptions: {
 			input: {
 				main: path.resolve(__dirname, 'index.html'),
+			},
+			output: {
+				manualChunks: {
+					vendor: ['react', 'react-dom', 'react-router-dom'],
+					ui: [
+						'@radix-ui/react-alert-dialog',
+						'@radix-ui/react-avatar',
+						'@radix-ui/react-checkbox',
+						'@radix-ui/react-dialog',
+						'@radix-ui/react-dropdown-menu',
+						'@radix-ui/react-label',
+						'@radix-ui/react-slot',
+						'@radix-ui/react-tabs',
+						'@radix-ui/react-toast',
+						'@radix-ui/react-slider',
+					],
+					utils: [
+						'class-variance-authority',
+						'clsx',
+						'tailwind-merge',
+						'tailwindcss-animate',
+					],
+				},
 			},
 		},
 	},
