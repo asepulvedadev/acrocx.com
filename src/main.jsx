@@ -5,7 +5,7 @@ import { HelmetProvider } from 'react-helmet-async';
 import { supabase } from "./lib/supabase";
 import "./index.css";
 
-// Importación de estilos críticos
+// Importación de estilos críticos (en la raíz de src) - IMPORTANTE: No usar ruta styles/
 import "./critical.css";
 
 // Importación normal para rutas críticas
