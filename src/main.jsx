@@ -3,9 +3,9 @@ import ReactDOM from "react-dom/client";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { HelmetProvider } from 'react-helmet-async';
 import { supabase } from "./lib/supabase";
-import "./index.css";
 
-// Importación de estilos críticos (en la raíz de src) - IMPORTANTE: No usar ruta styles/
+// Importación de estilos
+import "./index.css";
 import "./critical.css";
 
 // Importación normal para rutas críticas
@@ -195,16 +195,12 @@ if ('requestIdleCallback' in window) {
     console.log('Aplicación cargada completamente');
     // Iniciar la precarga de datos
     preloadBasicData();
-    // Cargar estilos no críticos
-    import('./non-critical.css').catch(err => console.warn('No se pudieron cargar estilos no críticos', err));
   }, { timeout: 2000 });
 } else {
   setTimeout(() => {
     console.log('Aplicación cargada completamente');
     // Iniciar la precarga de datos
     preloadBasicData();
-    // Cargar estilos no críticos
-    import('./non-critical.css').catch(err => console.warn('No se pudieron cargar estilos no críticos', err));
   }, 1000);
 }
 

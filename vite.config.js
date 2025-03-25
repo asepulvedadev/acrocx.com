@@ -102,7 +102,7 @@ export default defineConfig({
 		allowedHosts: true,
 	},
 	resolve: {
-		extensions: ['.jsx', '.js', '.tsx', '.ts', '.json', ],
+		extensions: ['.jsx', '.js', '.tsx', '.ts', '.json', '.css'],
 		alias: {
 			'@': path.resolve(__dirname, './src'),
 		},
