@@ -1,22 +1,70 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" id="favicon" />
     <meta name="generator" content="Hostinger Horizons" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Acrocx - Tu Socio Inmobiliario. Encuentra las mejores propiedades para compra y renta." />
+    <meta name="description" content="Acrocx - Agencia inmobiliaria especializada en propiedades de lujo, ventas, rentas y asesoría a propietarios. Encuentra la propiedad de tus sueños con nosotros." />
     <meta name="theme-color" content="#ffffff" />
+    <meta name="keywords" content="inmobiliaria, propiedades, bienes raíces, casas en venta, apartamentos en renta, asesoría inmobiliaria, propiedades de lujo" />
+    <meta name="robots" content="index, follow" />
+    <meta name="author" content="Acrocx Inmobiliaria" />
+    <link rel="canonical" href="https://acrocxweb.vercel.app/" />
     
-    <!-- Precargar recursos críticos -->
+    <!-- Metadatos Open Graph para redes sociales -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Acrocx - Tu Socio Inmobiliario | Propiedades en Venta y Renta" />
+    <meta property="og:description" content="Encuentra la propiedad perfecta con Acrocx, expertos en bienes raíces de lujo. Tenemos las mejores opciones en venta y renta." />
+    <meta property="og:url" content="https://acrocxweb.vercel.app/" />
+    <meta property="og:site_name" content="Acrocx Inmobiliaria" />
+    <meta property="og:image" content="https://acrocxweb.vercel.app/img/acrocx-social-card.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:locale" content="es_MX" />
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Acrocx - Tu Socio Inmobiliario | Propiedades en Venta y Renta" />
+    <meta name="twitter:description" content="Encuentra la propiedad perfecta con Acrocx, expertos en bienes raíces de lujo. Tenemos las mejores opciones en venta y renta." />
+    <meta name="twitter:image" content="https://acrocxweb.vercel.app/img/acrocx-social-card.jpg" />
+    
+    <!-- Datos estructurados JSON-LD para inmobiliaria -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "RealEstateAgent",
+        "name": "Acrocx Inmobiliaria",
+        "description": "Agencia inmobiliaria especializada en propiedades de lujo, ventas, rentas y asesoría a propietarios.",
+        "url": "https://acrocxweb.vercel.app/",
+        "logo": "https://acrocxweb.vercel.app/img/logo.png",
+        "sameAs": [
+          "https://www.facebook.com/acrocxInmobiliaria",
+          "https://www.instagram.com/acrocxInmobiliaria",
+          "https://www.linkedin.com/company/acrocx-inmobiliaria"
+        ],
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": "Ciudad de México",
+          "addressRegion": "CDMX",
+          "addressCountry": "MX"
+        },
+        "openingHours": "Mo,Tu,We,Th,Fr 09:00-18:00",
+        "telephone": "+525512345678",
+        "email": "contacto@acrocx.com"
+      }
+    </script>
+    
+    <!-- Preload de recursos críticos -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preload" href="/fonts/main-font.woff2" as="font" type="font/woff2" crossorigin />
     
     <!-- Prefetch para navegación común -->
     <link rel="prefetch" href="/ventas" as="document" />
     <link rel="prefetch" href="/rentas" as="document" />
     
-    <!-- Agregar script de precarga para detectar conexión lenta -->
+    <!-- Script de detección de conexión lenta -->
     <script type="text/javascript">
       // Detectar conexiones lentas y ajustar la estrategia de carga
       const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
@@ -25,7 +73,7 @@
       }
     </script>
     
-    <title>Acrocx - Tu Socio Inmobiliario</title>
+    <title>Acrocx - Tu Socio Inmobiliario | Propiedades en Venta y Renta</title>
   </head>
   <body>
     <div id="root"></div>
@@ -35,12 +83,17 @@
     <script type="module">
       // Cargar scripts no críticos después de que la página esté interactiva
       window.addEventListener('load', () => {
-        // Aquí cargaríamos scripts no críticos como analytics
+        // Priorizar la indexación y el SEO
         setTimeout(() => {
-          // Ejemplo: cargar analytics después de 3 segundos
-          // const analyticsScript = document.createElement('script');
-          // analyticsScript.src = '/analytics.js';
-          // document.body.appendChild(analyticsScript);
+          const linkElement = document.createElement('link');
+          linkElement.rel = 'stylesheet';
+          linkElement.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap';
+          document.head.appendChild(linkElement);
+          
+          // Generar sitemap dinámico
+          const sitemapScript = document.createElement('script');
+          sitemapScript.src = '/js/generate-sitemap.js';
+          document.body.appendChild(sitemapScript);
         }, 3000);
       });
     </script>

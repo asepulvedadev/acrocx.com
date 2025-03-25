@@ -1,0 +1,30 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">
+  <!-- Fondo con degradado -->
+  <defs>
+    <linearGradient id="bg-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f2e59" />
+      <stop offset="100%" stop-color="#1e40af" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Fondo principal -->
+  <rect width="1200" height="630" fill="url(#bg-gradient)" />
+  
+  <!-- Elementos decorativos -->
+  <path d="M0,250 C150,150 350,150 500,250 C650,350 850,350 1000,250 L1000,630 L0,630 Z" fill="#2563eb" opacity="0.2" />
+  
+  <!-- Contenido principal -->
+  <g transform="translate(100, 150)">
+    <!-- Icono de casa/propiedad -->
+    <path d="M100,100 L500,0 L900,100 L900,400 L100,400 Z" fill="none" stroke="white" stroke-width="10" />
+    <path d="M400,400 L400,250 L600,250 L600,400 Z" fill="none" stroke="white" stroke-width="10" />
+    <circle cx="500" cy="200" r="50" fill="white" />
+  </g>
+  
+  <!-- Texto principal -->
+  <text x="600" y="420" text-anchor="middle" font-family="Arial, sans-serif" font-size="72" font-weight="bold" fill="white">ACROCX</text>
+  <text x="600" y="500" text-anchor="middle" font-family="Arial, sans-serif" font-size="36" fill="white">Tu Socio Inmobiliario</text>
+  
+  <!-- Subtítulo -->
+  <text x="600" y="550" text-anchor="middle" font-family="Arial, sans-serif" font-size="28" fill="#e2e8f0">Propiedades en Venta y Renta</text>
+</svg> 

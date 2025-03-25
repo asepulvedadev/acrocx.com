@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
+        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
+                http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd
+                http://www.google.com/schemas/sitemap-image/1.1
+                http://www.google.com/schemas/sitemap-image/1.1/sitemap-image.xsd">
+
+  <!-- Página principal -->
+  <url>
+    <loc>https://acrocxweb.vercel.app/</loc>
+    <lastmod>2023-03-25T12:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+    <image:image>
+      <image:loc>https://acrocxweb.vercel.app/img/acrocx-social-card.jpg</image:loc>
+      <image:title>Acrocx - Tu Socio Inmobiliario</image:title>
+    </image:image>
+  </url>
+
+  <!-- Sección de ventas -->
+  <url>
+    <loc>https://acrocxweb.vercel.app/ventas</loc>
+    <lastmod>2023-03-25T12:00:00+00:00</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+    <image:image>
+      <image:loc>https://acrocxweb.vercel.app/img/ventas-banner.jpg</image:loc>
+      <image:title>Propiedades en Venta - Acrocx Inmobiliaria</image:title>
+    </image:image>
+  </url>
+
+  <!-- Sección de rentas -->
+  <url>
+    <loc>https://acrocxweb.vercel.app/rentas</loc>
+    <lastmod>2023-03-25T12:00:00+00:00</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+    <image:image>
+      <image:loc>https://acrocxweb.vercel.app/img/rentas-banner.jpg</image:loc>
+      <image:title>Propiedades en Renta - Acrocx Inmobiliaria</image:title>
+    </image:image>
+  </url>
+
+  <!-- Sección de propietarios -->
+  <url>
+    <loc>https://acrocxweb.vercel.app/propietarios</loc>
+    <lastmod>2023-03-25T12:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://acrocxweb.vercel.app/img/propietarios-banner.jpg</image:loc>
+      <image:title>Servicios para Propietarios - Acrocx Inmobiliaria</image:title>
+    </image:image>
+  </url>
+</urlset> 

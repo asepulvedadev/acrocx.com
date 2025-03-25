@@ -1,6 +1,7 @@
 import React, { useEffect, lazy, Suspense } from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { HelmetProvider } from 'react-helmet-async';
 import { supabase } from "./lib/supabase";
 import "./index.css";
 
@@ -128,7 +129,9 @@ const renderApp = () => {
   if (!appMounted) {
     ReactDOM.createRoot(document.getElementById("root")).render(
       <React.StrictMode>
-        <AppRoutes />
+        <HelmetProvider>
+          <AppRoutes />
+        </HelmetProvider>
       </React.StrictMode>
     );
     appMounted = true;

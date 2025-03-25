@@ -1,0 +1,23 @@
+# Acrocx Inmobiliaria - Configuración de robots.txt
+User-agent: *
+Allow: /
+
+# Permitir acceso a todas las secciones importantes
+Allow: /ventas
+Allow: /rentas
+Allow: /propietarios
+Allow: /img/
+Allow: /assets/
+
+# No indexar área de admin
+Disallow: /admin/
+Disallow: /admin/login
+Disallow: /admin/dashboard
+
+# No indexar archivos de configuración
+Disallow: /*.json$
+Disallow: /*.js.map$
+Disallow: /*.css.map$
+
+# Indicar ubicación del sitemap
+Sitemap: https://acrocxweb.vercel.app/sitemap.xml 
