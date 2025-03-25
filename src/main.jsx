@@ -5,6 +5,9 @@ import { HelmetProvider } from 'react-helmet-async';
 import { supabase } from "./lib/supabase";
 import "./index.css";
 
+// Importación de estilos críticos
+import "./styles/critical.css";
+
 // Importación normal para rutas críticas
 import Layout from "./components/Layout";
 import DashboardLayout from "./components/DashboardLayout";
@@ -192,12 +195,16 @@ if ('requestIdleCallback' in window) {
     console.log('Aplicación cargada completamente');
     // Iniciar la precarga de datos
     preloadBasicData();
+    // Cargar estilos no críticos
+    import('./styles/index.css').catch(err => console.warn('No se pudieron cargar estilos no críticos', err));
   }, { timeout: 2000 });
 } else {
   setTimeout(() => {
     console.log('Aplicación cargada completamente');
     // Iniciar la precarga de datos
     preloadBasicData();
+    // Cargar estilos no críticos
+    import('./styles/index.css').catch(err => console.warn('No se pudieron cargar estilos no críticos', err));
   }, 1000);
 }
 
