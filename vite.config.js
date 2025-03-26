@@ -96,10 +96,6 @@ export default defineConfig({
 	],
 	server: {
 		cors: true,
-		headers: {
-			'Cross-Origin-Embedder-Policy': 'credentialless',
-		},
-		allowedHosts: true,
 	},
 	resolve: {
 		extensions: ['.jsx', '.js', '.tsx', '.ts', '.json', '.css'],
@@ -108,6 +104,9 @@ export default defineConfig({
 		},
 	},
 	build: {
+		outDir: 'dist',
+		emptyOutDir: true,
+		assetsDir: 'assets',
 		cssCodeSplit: true,
 		reportCompressedSize: false,
 		chunkSizeWarningLimit: 1000,
@@ -147,4 +146,5 @@ export default defineConfig({
 			},
 		},
 	},
+	base: './',
 });
