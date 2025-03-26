@@ -1,7 +1,8 @@
 import React, { useEffect, lazy, Suspense } from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { HelmetProvider } from 'react-helmet-async';
+// Comentar la importación problemática
+// import { HelmetProvider } from 'react-helmet-async';
 import { supabase } from "./lib/supabase";
 
 // Importación de estilos
@@ -181,11 +182,12 @@ const AppRoutes = () => {
 // Renderizar la aplicación
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <HelmetProvider>
+    {/* Reemplazar HelmetProvider con div */}
+    <div>
       <Suspense fallback={<LoadingFallback />}>
         <AppRoutes />
       </Suspense>
-    </HelmetProvider>
+    </div>
   </React.StrictMode>
 );
 
