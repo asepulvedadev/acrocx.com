@@ -13,6 +13,7 @@
   "framework": "vite",
   "devCommand": "npm run dev",
   "outputDirectory": "dist",
+  "_comment": "Esta configuración está desactivada ya que el proyecto ahora se despliega en Hostinger en lugar de Vercel",
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }
   ],

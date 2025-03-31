@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Search, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -36,6 +35,8 @@ function SearchBox({ onSearch }) {
           <option value="casa">Casa</option>
           <option value="departamento">Departamento</option>
           <option value="terreno">Terreno</option>
+          <option value="oficina">Oficina</option>
+          <option value="local_comercial">Local Comercial</option>
         </select>
         <Button type="submit" className="h-full w-full rounded-[var(--radius)]">
           <Search className="mr-2 h-5 w-5" />

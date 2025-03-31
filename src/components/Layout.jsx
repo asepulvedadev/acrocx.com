@@ -17,7 +17,12 @@ import {
   Instagram,
   Linkedin,
   Lock,
-  MessageSquare
+  MessageSquare,
+  Copyright,
+  Scale,
+  Heart,
+  Twitter,
+  Settings
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabase";
@@ -288,72 +293,118 @@ function Layout({ children }) {
       </a>
 
       {/* Footer */}
-      <footer className="border-t bg-[#6a808b] py-16">
-        <div className="container-custom">
-          <div className="grid gap-12 md:grid-cols-4">
+      <footer className="bg-background border-t">
+        <div className="container-custom py-12">
+          <div className="grid gap-8 md:grid-cols-4">
+            {/* Contacto */}
             <div>
-              {logo ? (
-                <img 
-                  src={logo} 
-                  alt="Acrocx" 
-                  className="mb-6 h-8 w-auto brightness-0 invert"
-                />
-              ) : (
-                <h3 className="mb-6 text-2xl font-bold text-white">Acrocx</h3>
-              )}
-              <p className="text-white/90">
-                Tu socio inmobiliario de confianza en Monterrey.
-              </p>
-              <Link 
-                to="/admin/login" 
-                className="mt-4 inline-flex items-center gap-2 text-sm text-white/90 hover:text-white"
-              >
-                <Lock className="h-4 w-4" />
-                Acceso Administrativo
-              </Link>
-            </div>
-
-            <div>
-              <h4 className="mb-4 text-lg font-semibold text-white">Enlaces</h4>
-              <div className="flex flex-col gap-2">
-                <Link to="/" className="footer-link" onClick={() => window.scrollTo(0, 0)}>Inicio</Link>
-                <Link to="/ventas" className="footer-link" onClick={() => window.scrollTo(0, 0)}>Ventas</Link>
-                <Link to="/rentas" className="footer-link" onClick={() => window.scrollTo(0, 0)}>Rentas</Link>
-                <Link to="/propietarios" className="footer-link" onClick={() => window.scrollTo(0, 0)}>Propietarios</Link>
-              </div>
-            </div>
-
-            <div>
-              <h4 className="mb-4 text-lg font-semibold text-white">Contacto</h4>
-              <div className="flex flex-col gap-2">
-                <a href={contactInfo.phone.url || "tel:+528181234567"} className="footer-link flex items-center gap-2">
-                  <Phone className="h-4 w-4" />
-                  {contactInfo.phone.value || "81 8123 4567"}
-                </a>
-                <a href={contactInfo.email.url || "mailto:contacto@acrocx.com"} className="footer-link flex items-center gap-2">
-                  <Mail className="h-4 w-4" />
-                  {contactInfo.email.value || "contacto@acrocx.com"}
-                </a>
-                <span className="footer-link flex items-center gap-2">
+              <h3 className="mb-4 text-lg font-semibold">Contacto</h3>
+              <div className="space-y-2">
+                <p className="flex items-center gap-2 text-muted-foreground">
                   <MapPin className="h-4 w-4" />
-                  {contactInfo.address.value || "Monterrey, Nuevo León, México"}
-                </span>
+                  {contactInfo.address?.value || 'Av. Insurgentes Sur 1602, Crédito Constructor, Benito Juárez, 03940 Ciudad de México, CDMX'}
+                </p>
+                <p className="flex items-center gap-2 text-muted-foreground">
+                  <Phone className="h-4 w-4" />
+                  {contactInfo.phone?.value || '+52 (55) 1234-5678'}
+                </p>
+                <p className="flex items-center gap-2 text-muted-foreground">
+                  <Mail className="h-4 w-4" />
+                  {contactInfo.email?.value || 'contacto@acrocx.com'}
+                </p>
               </div>
             </div>
 
+            {/* Enlaces Rápidos */}
             <div>
-              <h4 className="mb-4 text-lg font-semibold text-white">Síguenos</h4>
+              <h3 className="mb-4 text-lg font-semibold">Enlaces Rápidos</h3>
+              <ul className="space-y-2">
+                <li>
+                  <Link to="/ventas" className="text-muted-foreground hover:text-primary transition-colors">
+                    Propiedades en Venta
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/rentas" className="text-muted-foreground hover:text-primary transition-colors">
+                    Propiedades en Renta
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/propietarios" className="text-muted-foreground hover:text-primary transition-colors">
+                    Área de Propietarios
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            {/* Redes Sociales */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold">Redes Sociales</h3>
               <div className="flex gap-4">
-                <a href={contactInfo.facebook.url || "#"} target="_blank" rel="noopener noreferrer" className="social-link">
+                <a
+                  href={contactInfo.facebook?.url || '#'}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="rounded-full bg-primary/10 p-2 text-primary transition-colors hover:bg-primary/20 dark:bg-primary/20 dark:text-white dark:hover:bg-primary/30"
+                >
                   <Facebook className="h-5 w-5" />
                 </a>
-                <a href={contactInfo.instagram.url || "#"} target="_blank" rel="noopener noreferrer" className="social-link">
+                <a
+                  href={contactInfo.instagram?.url || '#'}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="rounded-full bg-primary/10 p-2 text-primary transition-colors hover:bg-primary/20 dark:bg-primary/20 dark:text-white dark:hover:bg-primary/30"
+                >
                   <Instagram className="h-5 w-5" />
                 </a>
-                <a href={contactInfo.linkedin.url || "#"} target="_blank" rel="noopener noreferrer" className="social-link">
+                <a
+                  href={contactInfo.linkedin?.url || '#'}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="rounded-full bg-primary/10 p-2 text-primary transition-colors hover:bg-primary/20 dark:bg-primary/20 dark:text-white dark:hover:bg-primary/30"
+                >
                   <Linkedin className="h-5 w-5" />
                 </a>
               </div>
+            </div>
+
+            {/* Legal */}
+            <div>
+              <h3 className="mb-4 text-lg font-semibold">Legal</h3>
+              <ul className="space-y-2">
+                <li>
+                  <Link to="/privacidad" className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors">
+                    <Lock className="h-4 w-4" />
+                    Políticas de Privacidad
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/derechos-autor" className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors">
+                    <Copyright className="h-4 w-4" />
+                    Derechos de Autor
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/terminos-condiciones" className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors">
+                    <Scale className="h-4 w-4" />
+                    Términos y Condiciones
+                  </Link>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          {/* Derechos de Autor */}
+          <div className="mt-8 border-t pt-8 text-center">
+            <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+              <span>© {new Date().getFullYear()} Acrocx Inmobiliaria</span>
+              <span>•</span>
+              <span>Hecho por <a href="#" className="text-muted-foreground hover:underline">CraftIA</a></span>
+              <span>•</span>
+              <a href="/admin" className="flex items-center gap-1 text-muted-foreground hover:underline">
+                <Settings className="h-3 w-3" />
+                Panel Administrativo
+              </a>
             </div>
           </div>
         </div>

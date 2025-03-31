@@ -91,31 +91,26 @@ export const testConnection = async () => {
 // Funciones de autenticación mejoradas
 export const signIn = async (email, password) => {
   try {
-    // Crear AbortController para timeout
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
-    
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
-    }, { abortSignal: controller.signal });
+    });
     
-    clearTimeout(timeoutId);
-    
-    if (error) throw error;
+    if (error) {
+      if (error.message.includes('Invalid login credentials')) {
+        throw new Error('Correo electrónico o contraseña incorrectos');
+      }
+      throw error;
+    }
 
     // Guardar el token de sesión
     if (data?.session) {
       localStorage.setItem('adminToken', data.session.access_token);
+      localStorage.setItem('lastActivity', Date.now().toString());
     }
 
     return data;
   } catch (error) {
-    // Manejar error de timeout
-    if (error.name === 'AbortError') {
-      throw new Error('La conexión es demasiado lenta. Inténtalo de nuevo más tarde.');
-    }
-    
     console.error('Error de autenticación:', error.message);
     throw error;
   }
@@ -139,11 +134,76 @@ export const checkAuth = async () => {
   try {
     const { data: { session }, error } = await supabase.auth.getSession();
     if (error) throw error;
-    return session;
+    
+    // Si hay una sesión, verificar la última actividad
+    if (session) {
+      const lastActivity = localStorage.getItem('lastActivity');
+      const now = Date.now();
+      
+      // Si han pasado más de 30 minutos de inactividad, cerrar sesión
+      if (lastActivity && now - parseInt(lastActivity) > 30 * 60 * 1000) {
+        await signOut();
+        return null;
+      }
+      
+      // Actualizar timestamp de última actividad
+      localStorage.setItem('lastActivity', now.toString());
+      return session;
+    }
+    
+    return null;
   } catch (error) {
     console.error('Error al verificar autenticación:', error.message);
     return null;
   }
+};
+
+// Registrar nuevo usuario con código de seguridad
+export const signUp = async (email, password, securityCode) => {
+  try {
+    // Verificar el código de seguridad
+    if (securityCode !== 'B0lsjatkvi1') {
+      throw new Error('Código de seguridad inválido');
+    }
+
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          role: 'admin'
+        }
+      }
+    });
+
+    if (error) {
+      if (error.message.includes('User already registered')) {
+        throw new Error('Este correo electrónico ya está registrado');
+      }
+      throw error;
+    }
+
+    // Si el registro fue exitoso, iniciar sesión automáticamente
+    if (data?.user) {
+      const { data: sessionData, error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      if (signInError) throw signInError;
+      return sessionData;
+    }
+
+    return data;
+  } catch (error) {
+    console.error('Error en registro:', error.message);
+    throw error;
+  }
+};
+
+// Función para actualizar la última actividad
+export const updateLastActivity = () => {
+  localStorage.setItem('lastActivity', Date.now().toString());
 };
 
 // Función auxiliar para manejar errores de storage

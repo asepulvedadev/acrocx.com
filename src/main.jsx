@@ -16,6 +16,10 @@ const App = lazy(() => import("./App"));
 const Ventas = lazy(() => import("./pages/Ventas"));
 const Rentas = lazy(() => import("./pages/Rentas"));
 const Propietarios = lazy(() => import("./pages/Propietarios"));
+const Privacy = lazy(() => import("./pages/legal/Privacy"));
+const CopyrightPage = lazy(() => import("./pages/legal/Copyright"));
+const Terms = lazy(() => import("./pages/legal/Terms"));
+const NotFound = lazy(() => import("./pages/NotFound"));
 const AdminLogin = lazy(() => import("./pages/admin/Login"));
 const AdminDashboard = lazy(() => import("./pages/admin/Dashboard"));
 const PropertyForm = lazy(() => import("./pages/admin/PropertyForm"));
@@ -99,6 +103,21 @@ const AppRoutes = () => {
             path="/propietarios"
             element={<Layout><Propietarios /></Layout>}
           />
+          <Route
+            path="/privacidad"
+            element={<Layout><Privacy /></Layout>}
+          />
+          <Route
+            path="/derechos-autor"
+            element={<Layout><CopyrightPage /></Layout>}
+          />
+          <Route
+            path="/terminos-condiciones"
+            element={<Layout><Terms /></Layout>}
+          />
+          
+          {/* Ruta para manejar páginas no encontradas */}
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
     </Router>

@@ -13,7 +13,9 @@ import {
   Mail,
   MessageSquare,
   Loader2,
-  Star
+  Star,
+  Target,
+  Eye
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Toaster } from "@/components/ui/toaster";
@@ -21,6 +23,8 @@ import ImageSlider from "@/components/ImageSlider";
 import VideoSlider from "@/components/VideoSlider";
 import SearchBox from "@/components/SearchBox";
 import { supabase } from "@/lib/supabase";
+import ceoImage from './assets/img/CEO.jpeg';
+import PropertyCard from "@/components/PropertyCard";
 
 function App() {
   const { toast } = useToast();
@@ -251,14 +255,18 @@ function App() {
                         {formatPrice(property.price, property.status)}
                       </p>
                       <div className="property-features">
-                        <span className="feature-item">
-                          <Bed className="h-4 w-4" />
-                          {property.bedrooms} Recámaras
-                        </span>
-                        <span className="feature-item">
-                          <Bath className="h-4 w-4" />
-                          {property.bathrooms} Baños
-                        </span>
+                        {property.type !== 'local_comercial' && (
+                          <>
+                            <span className="feature-item">
+                              <Bed className="h-4 w-4" />
+                              {property.bedrooms} Recámaras
+                            </span>
+                            <span className="feature-item">
+                              <Bath className="h-4 w-4" />
+                              {property.bathrooms} Baños
+                            </span>
+                          </>
+                        )}
                         <span className="feature-item">
                           <Square className="h-4 w-4" />
                           {property.area}m²
@@ -277,54 +285,15 @@ function App() {
             ) : featuredProperties.length > 0 ? (
               <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
                 {featuredProperties.map((property) => (
-                  <motion.div 
-                    key={property.id}
-                    className="property-card group relative"
-                    whileHover={{ y: -10 }}
-                  >
-                    {/* Indicador de propiedad destacada */}
-                    <div className="absolute right-3 top-3 z-10 flex items-center gap-1 rounded-full bg-yellow-400/90 px-2 py-1 text-xs font-medium text-yellow-900 backdrop-blur-sm">
-                      <Star className="h-3 w-3 fill-current" />
-                      Destacada
-                    </div>
-                    
-                    <div className="property-card-image">
-                      <img  
-                        className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
-                        alt={property.title}
-                        src={property.property_images[0]?.image_url || 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9'} 
-                      />
-                    </div>
-                    <div className="property-card-content">
-                      <h3 className="text-xl font-semibold">
-                        {property.title}
-                      </h3>
-                      <p className="mt-2 text-sm text-muted-foreground">
-                        {property.location}
-                      </p>
-                      <p className="mt-4 text-2xl font-bold text-primary">
-                        {formatPrice(property.price, property.status)}
-                      </p>
-                      <div className="property-features">
-                        <span className="feature-item">
-                          <Bed className="h-4 w-4" />
-                          {property.bedrooms} Recámaras
-                        </span>
-                        <span className="feature-item">
-                          <Bath className="h-4 w-4" />
-                          {property.bathrooms} Baños
-                        </span>
-                        <span className="feature-item">
-                          <Square className="h-4 w-4" />
-                          {property.area}m²
-                        </span>
-                      </div>
-                    </div>
-                  </motion.div>
+                  <PropertyCard 
+                    key={property.id} 
+                    property={property} 
+                    showFeatured={true} 
+                  />
                 ))}
               </div>
             ) : (
-              <div className="rounded-lg border bg-white p-8 text-center shadow">
+              <div className="rounded-lg border bg-card p-8 text-center text-card-foreground">
                 <p className="text-lg text-muted-foreground">
                   No hay propiedades destacadas en este momento.
                 </p>
@@ -378,6 +347,90 @@ function App() {
               <p className="text-muted-foreground">
                 Te guiamos en todo el proceso de compra, venta o renta con asesoría profesional.
               </p>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* CEO Section */}
+      <section className="py-24">
+        <div className="container-custom">
+          <div className="mx-auto max-w-3xl">
+            <motion.div 
+              className="relative overflow-hidden rounded-[var(--radius)] bg-white p-8 shadow-xl dark:bg-gray-800"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              viewport={{ once: true }}
+            >
+              <div className="flex flex-col items-center text-center">
+                <div className="mb-8">
+                  <div className="h-80 w-80 overflow-hidden rounded-2xl border-4 border-primary/20 shadow-2xl">
+                    <img
+                      src={ceoImage}
+                      alt="Julio Cendejas"
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
+                </div>
+                <h2 className="mb-4 text-4xl ceo-name text-gray-900 dark:text-white">
+                  Julio Cendejas
+                </h2>
+                <p className="text-2xl ceo-title text-gray-400">
+                  Founder & CEO Acrocx Real Estate
+                </p>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* Misión y Visión Section */}
+      <section className="py-24 bg-gradient-to-b from-background to-muted/20">
+        <div className="container-custom">
+          <div className="grid gap-8 md:grid-cols-2">
+            {/* Misión Card */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
+              className="relative overflow-hidden rounded-2xl bg-primary p-8 text-primary-foreground shadow-xl"
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/80 to-primary/40" />
+              <div className="relative z-10">
+                <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-white/20">
+                  <Target className="h-8 w-8" />
+                </div>
+                <h2 className="mb-4 text-3xl font-bold">Nuestra Misión</h2>
+                <p className="text-lg leading-relaxed">
+                  Proporcionar un servicio inmobiliario excepcional, basado en la transparencia, 
+                  profesionalismo y compromiso con nuestros clientes, facilitando el acceso a 
+                  propiedades de calidad y contribuyendo a la realización de sus sueños inmobiliarios.
+                </p>
+              </div>
+            </motion.div>
+
+            {/* Visión Card */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="relative overflow-hidden rounded-2xl bg-secondary p-8 text-secondary-foreground shadow-xl"
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-secondary/80 to-secondary/40" />
+              <div className="relative z-10">
+                <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-white/20">
+                  <Eye className="h-8 w-8" />
+                </div>
+                <h2 className="mb-4 text-3xl font-bold">Nuestra Visión</h2>
+                <p className="text-lg leading-relaxed">
+                  Ser la agencia inmobiliaria líder en la región, reconocida por nuestra 
+                  innovación, excelencia en el servicio y compromiso con la satisfacción 
+                  del cliente, estableciendo nuevos estándares en el sector inmobiliario.
+                </p>
+              </div>
             </motion.div>
           </div>
         </div>

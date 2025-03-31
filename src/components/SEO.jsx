@@ -3,8 +3,7 @@ import { Helmet, HelmetProvider } from 'react-helmet-async';
 import PropTypes from 'prop-types';
 
 /**
- * Componente SEO para optimizar el posicionamiento en buscadores
- * Permite configurar metatags, títulos y descripciones en cada página
+ * Componente SEO optimizado para rendimiento y posicionamiento
  */
 const SEO = memo(function SEO({
   title = 'Acrocx - Tu Socio Inmobiliario',
@@ -29,85 +28,89 @@ const SEO = memo(function SEO({
   const metaOgDescription = ogDescription || description;
   const metaOgUrl = ogUrl || canonical;
   
-  // Palabras clave específicas del sector inmobiliario
+  // Palabras clave optimizadas para SEO
   const defaultKeywords = 'inmobiliaria, propiedades, bienes raíces, casas en venta, apartamentos en renta, asesoría inmobiliaria, propiedades de lujo';
   const allKeywords = `${defaultKeywords}, ${keywords}`.trim();
   
-  // Datos JSON-LD por defecto para inmobiliaria
+  // Datos estructurados optimizados
   const defaultStructuredData = {
-    '@context': 'https://schema.org',
-    '@type': 'RealEstateAgent',
-    'name': 'Acrocx Inmobiliaria',
-    'description': 'Agencia inmobiliaria especializada en propiedades de lujo, ventas, rentas y asesoría a propietarios.',
-    'url': siteUrl,
-    'logo': `${siteUrl}/img/logo.png`,
-    'sameAs': [
-      'https://www.facebook.com/acrocxInmobiliaria',
-      'https://www.instagram.com/acrocxInmobiliaria',
-      'https://www.linkedin.com/company/acrocx-inmobiliaria'
-    ],
-    'address': {
-      '@type': 'PostalAddress',
-      'addressLocality': 'Ciudad de México',
-      'addressRegion': 'CDMX',
-      'addressCountry': 'MX'
+    "@context": "https://schema.org",
+    "@type": "RealEstateAgent",
+    "name": "Acrocx Inmobiliaria",
+    "description": description,
+    "url": canonical,
+    "logo": `${siteUrl}/img/logo.png`,
+    "image": `${siteUrl}${ogImage}`,
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "Ciudad de México",
+      "addressRegion": "CDMX",
+      "addressCountry": "MX"
     },
-    'openingHours': 'Mo,Tu,We,Th,Fr 09:00-18:00',
-    'telephone': '+525512345678',
-    'email': 'contacto@acrocx.com'
+    "geo": {
+      "@type": "GeoCoordinates",
+      "latitude": "19.4326",
+      "longitude": "-99.1332"
+    },
+    "openingHours": "Mo,Tu,We,Th,Fr 09:00-18:00",
+    "priceRange": "$$",
+    "telephone": "+525512345678",
+    "email": "contacto@acrocx.com"
   };
-  
-  // Usar datos estructurados personalizados o los predeterminados
+
   const jsonLd = structuredData || defaultStructuredData;
-  
-  // Configuración básica para el head
+
   return (
     <HelmetProvider>
       <Helmet prioritizeSeoTags>
-        {/* Etiquetas básicas */}
+        {/* Etiquetas básicas optimizadas */}
         <title>{title}</title>
         <meta name="description" content={description} />
         <meta name="keywords" content={allKeywords} />
         <link rel="canonical" href={canonical} />
         
-        {/* Etiquetas para indexación */}
+        {/* Control de indexación */}
         {noindex && <meta name="robots" content="noindex, nofollow" />}
-        {!noindex && <meta name="robots" content="index, follow" />}
+        {!noindex && <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />}
         
-        {/* OpenGraph básico */}
+        {/* OpenGraph optimizado */}
         <meta property="og:type" content={ogType} />
         <meta property="og:title" content={metaOgTitle} />
         <meta property="og:description" content={metaOgDescription} />
         <meta property="og:url" content={metaOgUrl} />
-        
-        {/* OpenGraph imagen - con lazy load para no bloquear renderizado */}
         <meta property="og:image" content={`${siteUrl}${ogImage}`} />
         <meta property="og:image:alt" content={title} />
         <meta property="og:site_name" content="Acrocx" />
+        <meta property="og:locale" content="es_MX" />
         
-        {/* Twitter Card */}
+        {/* Twitter Card optimizada */}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={metaOgTitle} />
         <meta name="twitter:description" content={metaOgDescription} />
         <meta name="twitter:image" content={`${siteUrl}${ogImage}`} />
+        <meta name="twitter:site" content="@acrocx" />
         
-        {/* Metadatos de performance */}
+        {/* Metadatos de rendimiento */}
         <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+        <meta name="theme-color" content="#2e3d40" />
         
-        {/* Datos estructurados JSON-LD si existen */}
-        {structuredData && (
-          <script type="application/ld+json">
-            {JSON.stringify(jsonLd)}
-          </script>
-        )}
+        {/* DNS Prefetch y Preconnect optimizados */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="//maps.googleapis.com" />
         
-        {/* Recursos de imágenes optimizados */}
+        {/* Datos estructurados optimizados */}
+        <script type="application/ld+json">
+          {JSON.stringify(jsonLd)}
+        </script>
+        
+        {/* Preload de recursos críticos */}
         <link 
           rel="preload" 
-          as="image" 
-          href={`${siteUrl}${ogImage}`} 
-          media="(max-width: 0)" 
-          onLoad="this.media='all'"
+          href={`${siteUrl}${ogImage}`}
+          as="image"
+          type="image/svg+xml"
         />
       </Helmet>
       {children}
@@ -116,16 +119,17 @@ const SEO = memo(function SEO({
 });
 
 SEO.propTypes = {
-  title: PropTypes.string.isRequired,
-  description: PropTypes.string.isRequired,
+  title: PropTypes.string,
+  description: PropTypes.string,
   canonicalUrl: PropTypes.string,
   ogUrl: PropTypes.string,
   ogType: PropTypes.string,
   ogTitle: PropTypes.string,
   ogDescription: PropTypes.string,
   ogImage: PropTypes.string,
-  structuredData: PropTypes.object,
+  keywords: PropTypes.string,
   noindex: PropTypes.bool,
+  structuredData: PropTypes.object,
   children: PropTypes.node
 };
 

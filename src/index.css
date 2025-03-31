@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Sriracha&family=Staatliches&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -107,7 +109,7 @@
 }
 
 .section-title {
-  @apply mb-12 text-center text-4xl font-bold md:text-5xl;
+  @apply mb-8 text-center text-xl font-light md:mb-10 md:text-2xl lg:mb-12 lg:text-3xl;
 }
 
 .container-custom {
@@ -195,3 +197,71 @@ footer .text-muted-foreground {
   animation: none;
   transform: scale(1.1);
 }
+
+/* Definición de clases de fuentes */
+.font-sriracha {
+  font-family: 'Sriracha', cursive !important;
+}
+
+.font-staatliches {
+  font-family: 'Staatliches', cursive !important;
+}
+
+.font-pavanam {
+  font-family: 'Pavanam', sans-serif !important;
+}
+
+.font-oxygen-mono {
+  font-family: 'Oxygen Mono', monospace !important;
+}
+
+.font-poppins {
+  font-family: 'Poppins', sans-serif !important;
+}
+
+/* Estilos base para títulos */
+h1, .h1, h2, .h2, h3, .h3, .section-title, .hero-title, .card-title, .featured-title {
+  font-family: 'Quicksand', sans-serif !important;
+  font-weight: 300 !important;
+  letter-spacing: 0.02em;
+}
+
+/* Tamaños de títulos */
+h1, .h1, .section-title {
+  @apply text-lg md:text-2xl lg:text-3xl !important;
+}
+
+h2, .h2, .hero-title {
+  @apply text-base md:text-xl lg:text-2xl !important;
+}
+
+h3, .h3, .card-title, .featured-title {
+  @apply text-sm md:text-lg lg:text-xl !important;
+}
+
+/* Estilos específicos para el nombre del CEO */
+.ceo-name {
+  font-family: 'Poppins', sans-serif !important;
+  font-weight: 300 !important;
+  letter-spacing: 0.05em;
+  @apply text-lg md:text-xl lg:text-2xl !important;
+}
+
+/* Estilos específicos para el cargo del CEO */
+.ceo-title {
+  font-family: 'Poppins', sans-serif !important;
+  font-weight: 300 !important;
+  letter-spacing: 0.02em;
+  @apply text-sm md:text-base lg:text-lg !important;
+}
+
+/* Estilos específicos para títulos de tarjetas */
+.card-title {
+  @apply text-sm font-light md:text-lg lg:text-xl !important;
+}
+
+/* Ajuste específico para el título de la sección */
+.section-title {
+  @apply mb-8 text-center text-xl font-light md:mb-10 md:text-2xl lg:mb-12 lg:text-3xl !important;
+}
+
