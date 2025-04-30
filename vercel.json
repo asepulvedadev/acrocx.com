@@ -7,9 +7,6 @@
     "enabled": true,
     "silent": false
   },
-  "buildEnvironment": {
-    "VERCEL_FORCE_NO_BUILD_CACHE": "1"
-  },
   "framework": "vite",
   "devCommand": "npm run dev",
   "outputDirectory": "dist",
